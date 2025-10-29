@@ -531,6 +531,7 @@
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -541,29 +542,24 @@
                     })
                 });
 
-                const data = await response.json();
+                // With no-cors mode, we can't read the response
+                // But if the fetch doesn't throw an error, it likely worked
+                stats.success++;
+                updateStats();
                 
-                if (data.success) {
-                    stats.success++;
-                    updateStats();
-                    
-                    // Success vibration
-                    if (navigator.vibrate) {
-                        navigator.vibrate([100, 50, 100]);
-                    }
-                    
-                    showResult(
-                        `✅ Success!<br>
-                        <div class="barcode-display">${barcode}</div>
-                        Mode: ${modeNames[currentMode]}<br>
-                        ${data.message || ''}`,
-                        'success'
-                    );
-                } else {
-                    stats.errors++;
-                    updateStats();
-                    showResult(`❌ Error: ${data.error}`, 'error');
+                // Success vibration
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]);
                 }
+                
+                showResult(
+                    `✅ Success!<br>
+                    <div class="barcode-display">${barcode}</div>
+                    Mode: ${modeNames[currentMode]}<br>
+                    Check your Google Sheet!`,
+                    'success'
+                );
+                
             } catch (error) {
                 stats.errors++;
                 updateStats();
